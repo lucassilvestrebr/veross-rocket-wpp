@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>WhatsApp Campaign Launcher</title>
+  <title>Rocketflow Outreach by Verossr</title>
   <style>
     :root{
       --navy:#080A30;
@@ -16,18 +16,39 @@
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
       background:var(--paper);
-      margin:0; padding:24px;
       color:#111827;
+      margin:0;
+      min-height:100vh;
+      display:flex;               /* para podermos centralizar o card na main */
+      flex-direction:column;
     }
+    /* Área principal centralizada */
+    .main{ flex:1; display:grid; place-items:center; padding:24px; }
+
+    /* Cartão base (tamanho padrão para pós-login) */
     .card{
-      max-width:860px; margin:0 auto; background:#fff;
-      border:1px solid var(--gray); border-radius:16px;
-      box-shadow:0 6px 24px rgba(8,10,48,.08); padding:24px;
+      width:100%;
+      max-width:860px;
+      background:#fff;
+      border:1px solid var(--gray);
+      border-radius:16px;
+      box-shadow:0 6px 24px rgba(8,10,48,.08);
+      padding:24px;
     }
+
+    /* --- MODO LOGIN (cartão menor + logo grande e centralizado) --- */
+    body.auth .card{ max-width:560px; padding:28px; }
+    body.auth header{ justify-content:center; }
+    body.auth .logo{ height:96px; }     /* logo maior no login */
+    body.auth .muted{ text-align:center; }
+    body.auth .actions-top{ display:none; } /* esconde ações do topo no login */
+
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
     .logo-wrap{display:flex;align-items:center;gap:12px}
-    .logo{height:40px; width:auto; display:block}
+    .logo{height:40px;width:auto;display:block}
+
     .muted{color:#6b7280;font-size:14px;margin:0 0 16px}
+    h3{margin:0 0 8px;color:var(--navy)}
     label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px;color:#1f2937}
     input,textarea,button{font:inherit}
     input[type="text"],input[type="password"],input[type="email"],textarea{
@@ -35,6 +56,8 @@
     }
     textarea{min-height:120px}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:640px){ .row{grid-template-columns:1fr;} }
+
     .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
     .btn{padding:10px 16px;border:0;border-radius:12px;cursor:pointer;font-weight:700;transition:.18s transform ease}
     .btn:active{transform:translateY(1px)}
@@ -48,111 +71,112 @@
     .pill{display:inline-block;background:var(--sand);color:var(--navy);padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--gold)}
     .hide{display:none}
     .file-hint{font-size:12px;color:#6b7280;margin-top:6px}
-    footer{max-width:860px;margin:16px auto 0;text-align:center;color:#6b7280;font-size:12px}
+    footer{max-width:860px;margin:16px auto 24px;text-align:center;color:#6b7280;font-size:12px}
     .link{color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--gold)}
   </style>
 </head>
 <body>
-  <div class="card">
-    <header>
-      <!-- TROQUE o src abaixo pelo caminho do seu logo -->
-      <div class="logo src">
-        <img class="logo" src="https://i.postimg.cc/Pf0LHXyb/a-photograph-of-a-flat-design-logo-depic-TVrg-Bh-ZES9-Suh-JDPmm0i-HQ-3-OYTMLx-GRpa34je-Wa5-O-4-A.png" alt="Rocketflow by Veross"/>
-      </div>
-      <div class="actions" style="margin-top:0">
-        <!-- espaço para um atalho se quiser (ex.: Docs, Suporte) -->
-      </div>
-    </header>
-    <p class="muted">Conectar · Engajar · Converter · Encantar</p>
-
-    <!-- LOGIN -->
-    <section id="loginBox">
-      <h3 style="margin:0 0 8px;color:var(--navy)">Acesse sua conta</h3>
-      <div class="row">
-        <div>
-          <label>E-mail</label>
-          <input id="email" type="email" placeholder="voce@empresa.com"/>
+  <div class="main">
+    <div class="card">
+      <header>
+        <!-- TROQUE o src pelo seu logo -->
+        <div class="logo-wrap">
+          <img class="logo" src="https://i.postimg.cc/Pf0LHXyb/a-photograph-of-a-flat-design-logo-depic-TVrg-Bh-ZES9-Suh-JDPmm0i-HQ-3-OYTMLx-GRpa34je-Wa5-O-4-A.png" alt="Rocketflow Outreach"/>
         </div>
-        <div>
-          <label>Senha</label>
-          <input id="password" type="password" placeholder="••••••••"/>
+        <div class="actions-top"></div>
+      </header>
+      <p class="muted">Conectar > Engajar > Converter > Encantar</p>
+
+      <!-- LOGIN -->
+      <section id="loginBox">
+        <h3>Acesse sua conta</h3>
+        <div class="row">
+          <div>
+            <label>E-mail</label>
+            <input id="email" type="email" placeholder="voce@empresa.com"/>
+          </div>
+          <div>
+            <label>Senha</label>
+            <input id="password" type="password" placeholder="••••••••"/>
+          </div>
         </div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
-        <button class="btn btn-primary" id="btnLogin">Entrar</button>
-      </div>
-      <div id="loginMsg" class="error hide"></div>
-    </section>
-
-    <!-- SIGNUP -->
-    <section id="signupBox" class="hide" style="margin-top:12px">
-      <h3 style="margin:0 0 8px;color:var(--navy)">Criar conta</h3>
-      <div class="row">
-        <div>
-          <label>E-mail</label>
-          <input id="signupEmail" type="email" placeholder="voce@empresa.com"/>
-        </div>
-        <div>
-          <label>Senha</label>
-          <input id="signupPassword" type="password" placeholder="Crie uma senha segura"/>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn btn-ghost" id="btnCancelSignup">Cancelar</button>
-        <button class="btn btn-primary" id="btnSignup">Criar conta</button>
-      </div>
-      <div id="signupMsg" class="error hide"></div>
-      <div id="signupOk" class="ok hide"></div>
-      <div class="divider"></div>
-    </section>
-
-    <section id="meBox" class="hide">
-      <span class="pill" id="meEmail"></span>
-      <div class="actions" style="margin-top:8px">
-        <button class="btn btn-ghost" id="btnLogout">Sair</button>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- FORM -->
-    <section id="campaignBox" class="hide">
-      <h3 style="margin:0 0 8px;color:var(--navy)">Nova campanha</h3>
-      <div class="row">
-        <div>
-          <label>Nome da campanha</label>
-          <input id="nome" type="text" placeholder="Black Friday 2025"/>
-        </div>
-        <div>
-          <label>Objetivo da campanha</label>
-          <input id="objetivo" type="text" placeholder="Agendar reuniões / Reengajar base"/>
-        </div>
-      </div>
-
-      <label>Mensagem da campanha</label>
-      <textarea id="mensagem" placeholder="Olá, {{nome}}! Aqui é da Veross..."></textarea>
-      <div class="muted">Placeholders: <code>{{nome}}</code>, <code>{{telefone}}</code> (E.164 sem +)</div>
-
-      <label>Subir lista (CSV ou Excel)</label>
-      <input id="file" type="file" accept=".csv,.xlsx,.xls"/>
-      <div class="file-hint">Baixe o layout: <a class="link" href="#" id="downloadLayout">nome,telefone</a></div>
-
-      <div class="actions">
-        <button class="btn" style="background:var(--sand);border:1px solid var(--gold)" id="btnCreate">Criar campanha</button>
-      </div>
-      <div id="formMsg" class="error hide"></div>
-
-      <div id="resumeBox" class="hide">
-        <div class="divider"></div>
-        <h3 style="margin:0 0 8px;color:var(--navy)">Resumo</h3>
-        <div id="resume"></div>
         <div class="actions">
-          <button class="btn btn-primary" id="btnStart">Iniciar campanha</button>
+          <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
+          <button class="btn btn-primary" id="btnLogin">Entrar</button>
         </div>
-        <div id="startMsg" class="ok hide"></div>
-      </div>
-    </section>
+        <div id="loginMsg" class="error hide"></div>
+        <div class="divider"></div>
+      </section>
+
+      <!-- SIGNUP -->
+      <section id="signupBox" class="hide">
+        <h3>Criar conta</h3>
+        <div class="row">
+          <div>
+            <label>E-mail</label>
+            <input id="signupEmail" type="email" placeholder="voce@empresa.com"/>
+          </div>
+          <div>
+            <label>Senha</label>
+            <input id="signupPassword" type="password" placeholder="Crie uma senha segura"/>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost" id="btnCancelSignup">Cancelar</button>
+          <button class="btn btn-primary" id="btnSignup">Criar conta</button>
+        </div>
+        <div id="signupMsg" class="error hide"></div>
+        <div id="signupOk" class="ok hide"></div>
+        <div class="divider"></div>
+      </section>
+
+      <section id="meBox" class="hide">
+        <span class="pill" id="meEmail"></span>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn btn-ghost" id="btnLogout">Sair</button>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- FORM CAMPANHA -->
+      <section id="campaignBox" class="hide">
+        <h3>Nova campanha</h3>
+        <div class="row">
+          <div>
+            <label>Nome da campanha</label>
+            <input id="nome" type="text" placeholder="Black Friday 2025"/>
+          </div>
+          <div>
+            <label>Objetivo da campanha</label>
+            <input id="objetivo" type="text" placeholder="Agendar reuniões / Reengajar base"/>
+          </div>
+        </div>
+
+        <label>Mensagem da campanha</label>
+        <textarea id="mensagem" placeholder="Olá, {{nome}}! Aqui é da Veross..."></textarea>
+        <div class="muted">Placeholders: <code>{{nome}}</code>, <code>{{telefone}}</code> (E.164 sem +)</div>
+
+        <label>Subir lista (CSV ou Excel)</label>
+        <input id="file" type="file" accept=".csv,.xlsx,.xls"/>
+        <div class="file-hint">Baixe o layout: <a class="link" href="#" id="downloadLayout">nome,telefone</a></div>
+
+        <div class="actions">
+          <button class="btn" style="background:var(--sand);border:1px solid var(--gold)" id="btnCreate">Criar campanha</button>
+        </div>
+        <div id="formMsg" class="error hide"></div>
+
+        <div id="resumeBox" class="hide">
+          <div class="divider"></div>
+          <h3>Resumo</h3>
+          <div id="resume"></div>
+          <div class="actions">
+            <button class="btn btn-primary" id="btnStart">Iniciar campanha</button>
+          </div>
+          <div id="startMsg" class="ok hide"></div>
+        </div>
+      </section>
+    </div>
   </div>
 
   <footer>
@@ -161,16 +185,15 @@
 
 <script>
   // ======== CONFIG =========
-  const API_BASE = "https://api.seudominio.com"; // troque pelo seu gateway ou HOST do n8n
-
-  // helpers
+  const API_BASE = ""; // usando proxy /api/... pela Vercel? deixe vazio. Ou coloque "https://SEU_N8N/webhook"
   const $ = (id)=>document.getElementById(id);
   const show = (id, on=true)=> $(id).classList.toggle('hide', !on);
   const bearer = ()=> localStorage.getItem('token') || '';
   const req = (path, init={})=>{
     const headers = init.body instanceof FormData ? {} : {'Content-Type':'application/json'};
     if (bearer()) headers['Authorization'] = 'Bearer ' + bearer();
-    return fetch(API_BASE + path, {...init, headers: {...headers, ...(init.headers||{})}})
+    const url = API_BASE ? (API_BASE + path) : path; // se vazio, chama /api/... direto
+    return fetch(url.startsWith('/api')? url : (API_BASE + path), {...init, headers: {...headers, ...(init.headers||{})}})
       .then(async r=> r.ok ? r.json() : Promise.reject(new Error(await r.text() || r.statusText)));
   };
 
@@ -184,11 +207,10 @@
     URL.revokeObjectURL(url);
   });
 
-  // state
   let createdCampaignId = null;
   let uploadedMeta = null;
 
-  // toggle signup
+  // mostrar formulário de cadastro
   $('btnShowSignup').onclick = ()=>{ show('signupBox', true); };
   $('btnCancelSignup').onclick = ()=>{ show('signupBox', false); };
 
@@ -218,6 +240,7 @@
       });
       localStorage.setItem('token', res.token);
       await loadMe();
+      document.body.classList.remove('auth'); // sai do modo login (card menor)
       show('loginBox', false);
       show('signupBox', false);
       show('meBox', true);
@@ -227,6 +250,7 @@
 
   $('btnLogout').onclick = ()=>{
     localStorage.removeItem('token');
+    document.body.classList.add('auth'); // volta pro modo login (card menor)
     location.reload();
   };
 
@@ -244,12 +268,10 @@
     if(!file){ $('formMsg').textContent = 'Selecione um arquivo CSV/Excel.'; show('formMsg', true); return; }
 
     try{
-      // 1) upload
       const form = new FormData();
       form.append('file', file);
       uploadedMeta = await req('/api/upload/lista', { method:'POST', body: form });
 
-      // 2) criar campanha
       const payload = {
         nome: $('nome').value.trim(),
         objetivo: $('objetivo').value.trim(),
@@ -259,7 +281,6 @@
       const camp = await req('/api/campaigns', { method:'POST', body: JSON.stringify(payload) });
       createdCampaignId = camp.id;
 
-      // resumo
       $('resume').innerHTML = `
         <p><b>Campanha:</b> ${payload.nome}</p>
         <p><b>Objetivo:</b> ${payload.objetivo}</p>
@@ -275,15 +296,17 @@
   $('btnStart').onclick = async ()=>{
     show('startMsg', false);
     try{
-      const res = await req(`/api/campaigns/${createdCampaignId}/start`, { method:'POST' });
+      await req(`/api/campaigns/${createdCampaignId}/start`, { method:'POST' });
       $('startMsg').textContent = 'Disparo iniciado! Você pode acompanhar no n8n/Meetime.';
       show('startMsg', true);
     }catch(e){ $('startMsg').textContent = 'Erro: ' + e.message; show('startMsg', true); }
   };
 
-  // se já tem token, pula pro app
+  // inicia em modo login (card menor). Se já tem token, entra direto
+  document.body.classList.add('auth');
   if (bearer()){
     loadMe().then(()=>{
+      document.body.classList.remove('auth');
       show('loginBox', false);
       show('signupBox', false);
       show('meBox', true);
