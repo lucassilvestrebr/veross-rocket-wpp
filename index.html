@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Rocketflow Outreach by Verossr</title>
+  <title>Rocketflow • WhatsApp Campaign Launcher</title>
   <style>
     :root{
       --navy:#080A30;
@@ -19,13 +19,13 @@
       color:#111827;
       margin:0;
       min-height:100vh;
-      display:flex;               /* para podermos centralizar o card na main */
-      flex-direction:column;
+      display:flex;flex-direction:column;
     }
-    /* Área principal centralizada */
+
+    /* centro absoluto do conteúdo */
     .main{ flex:1; display:grid; place-items:center; padding:24px; }
 
-    /* Cartão base (tamanho padrão para pós-login) */
+    /* cartão padrão (após login) */
     .card{
       width:100%;
       max-width:860px;
@@ -36,18 +36,17 @@
       padding:24px;
     }
 
-    /* --- MODO LOGIN (cartão menor + logo grande e centralizado) --- */
+    /* modo login: cartão menor e header centralizado */
     body.auth .card{ max-width:560px; padding:28px; }
-    body.auth header{ justify-content:center; }
-    body.auth .logo{ height:220px; }     /* logo maior no login */
-    body.auth .muted{ text-align:center; }
-    body.auth .actions-top{ display:none; } /* esconde ações do topo no login */
-
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-    .logo-wrap{display:flex;align-items:center;gap:12px}
-    .logo{height:40px;width:auto;display:block}
+    body.auth header{ justify-content:center; }
+    .logo-wrap{display:flex;align-items:center;gap:12px;flex-direction:column}
+    .logo{height:120px;width:auto;display:block;border-radius:12px}
+    body:not(.auth) .logo{height:40px} /* quando logado, logo fica pequena no topo/esquerda */
 
-    .muted{color:#6b7280;font-size:14px;margin:0 0 16px}
+    .muted{color:#6b7280;font-size:14px;margin:4px 0 16px}
+    body.auth .muted{text-align:center}
+
     h3{margin:0 0 8px;color:var(--navy)}
     label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px;color:#1f2937}
     input,textarea,button{font:inherit}
@@ -79,13 +78,14 @@
   <div class="main">
     <div class="card">
       <header>
-        <!-- TROQUE o src pelo seu logo -->
         <div class="logo-wrap">
-          <img class="logo" src="https://i.postimg.cc/28y5rD7J/LOGO-VEROSS-ROCKETFLOW-1000-X1000.png" alt="Rocketflow Outreach"/>
+          <!-- LOGO: usei a imagem que você enviou -->
+          <img class="logo" src="https://i.postimg.cc/28y5rD7J/LOGO-VEROSS-ROCKETFLOW-1000-X1000.png" alt="Rocketflow logo"/>
+          <!-- tagline -->
+          <p class="muted">Faça prospecção todo santo dia!</p>
         </div>
         <div class="actions-top"></div>
       </header>
-      <p class="muted">Faça prospecção todo santo dia!</p>
 
       <!-- LOGIN -->
       <section id="loginBox">
@@ -96,18 +96,20 @@
             <input id="email" type="email" placeholder="voce@empresa.com"/>
           </div>
           <div>
-      <label>Senha</label>
-             <div style="display:flex;gap:8px;align-items:center">
-            <input id="password" type="password" placeholder="••••••••" style="flex:1"/>
-            <button class="btn btn-ghost" id="togglePwd" type="button">Mostrar</button>
+            <label>Senha</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="password" type="password" placeholder="••••••••" style="flex:1"/>
+              <button class="btn btn-ghost" id="togglePwd" type="button">Mostrar</button>
+            </div>
+          </div>
         </div>
-        </div>
+
         <div class="actions" style="justify-content:space-between;margin-top:8px">
-        <a class="link" href="#" id="forgotLink">Esqueci minha senha</a>
-        <div>
-        <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
-        <button class="btn btn-primary" id="btnLogin">Entrar</button>
-        </div>
+          <a class="link" href="#" id="forgotLink">Esqueci minha senha</a>
+          <div>
+            <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
+            <button class="btn btn-primary" id="btnLogin">Entrar</button>
+          </div>
         </div>
         <div id="loginMsg" class="error hide"></div>
         <div class="divider"></div>
@@ -189,28 +191,44 @@
   </footer>
 
 <script>
-  // ======== CONFIG =========
-  const API_BASE = ""; // usando proxy /api/... pela Vercel? deixe vazio. Ou coloque "https://SEU_N8N/webhook"
+  /* ===================== CONFIG ===================== */
+  // Modo recomendado (Vercel com rewrites /api → n8n):
+  const USE_VERCEL_PROXY = true;  // true = chama /api/..., false = chama API_BASE + endpoint
+  const API_BASE = "";            // se USE_VERCEL_PROXY=false, preencha: "https://SEU_N8N/webhook"
+
   const $ = (id)=>document.getElementById(id);
   const show = (id, on=true)=> $(id).classList.toggle('hide', !on);
   const bearer = ()=> localStorage.getItem('token') || '';
+
+  function endpoint(path){ // ex: endpoint('auth-login')
+    if (USE_VERCEL_PROXY) return `/api/${path}`;
+    const base = API_BASE.replace(/\/$/,'');
+    return `${base}/${path}`;
+  }
+
   const req = (path, init={})=>{
     const headers = init.body instanceof FormData ? {} : {'Content-Type':'application/json'};
     if (bearer()) headers['Authorization'] = 'Bearer ' + bearer();
-    const url = API_BASE ? (API_BASE + path) : path; // se vazio, chama /api/... direto
-    return fetch(url.startsWith('/api')? url : (API_BASE + path), {...init, headers: {...headers, ...(init.headers||{})}})
-      .then(async r=> r.ok ? r.json() : Promise.reject(new Error(await r.text() || r.statusText)));
+    const url = endpoint(path);
+    return fetch(url, {...init, headers: {...headers, ...(init.headers||{})}})
+      .then(async r=> r.ok ? r.json() : Promise.reject(new Error((await r.text()) || r.statusText)));
+  };
+
+  /* ===================== UI Helpers ===================== */
+  // Toggle mostrar/ocultar senha
+  const togglePwd = document.getElementById('togglePwd');
+  if (togglePwd) {
+    const pwdInput = $('password');
+    togglePwd.onclick = () => {
+      const mostrar = pwdInput.type === 'password';
+      pwdInput.type = mostrar ? 'text' : 'password';
+      togglePwd.textContent = mostrar ? 'Ocultar' : 'Mostrar';
+    };
   }
-    // toggle mostrar/ocultar senha
-const togglePwd = document.getElementById('togglePwd');
-if (togglePwd) {
-  const pwdInput = $('password');
-  togglePwd.onclick = () => {
-    const mostrar = pwdInput.type === 'password';
-    pwdInput.type = mostrar ? 'text' : 'password';
-    togglePwd.textContent = mostrar ? 'Ocultar' : 'Mostrar';
-  }
-    ;
+
+  // Esqueci minha senha (placeholder)
+  const forgot = document.getElementById('forgotLink');
+  if (forgot) forgot.onclick = (e)=>{ e.preventDefault(); alert('Em breve: fluxo de redefinição de senha.'); };
 
   // CSV layout download
   $('downloadLayout').addEventListener('click', (e)=>{
@@ -222,10 +240,11 @@ if (togglePwd) {
     URL.revokeObjectURL(url);
   });
 
+  /* ===================== APP STATE ===================== */
   let createdCampaignId = null;
   let uploadedMeta = null;
 
-  // mostrar formulário de cadastro
+  // mostrar/ocultar signup
   $('btnShowSignup').onclick = ()=>{ show('signupBox', true); };
   $('btnCancelSignup').onclick = ()=>{ show('signupBox', false); };
 
@@ -236,7 +255,7 @@ if (togglePwd) {
       const email = $('signupEmail').value.trim();
       const password = $('signupPassword').value.trim();
       if(!email || !password){ $('signupMsg').textContent = 'Preencha e-mail e senha.'; show('signupMsg', true); return; }
-      await req('/api/auth/register', { method:'POST', body: JSON.stringify({ email, password }) });
+      await req('auth-register', { method:'POST', body: JSON.stringify({ email, password }) });
       $('signupOk').textContent = 'Conta criada! Agora faça login.';
       show('signupOk', true);
     }catch(e){
@@ -249,13 +268,13 @@ if (togglePwd) {
   $('btnLogin').onclick = async ()=>{
     show('loginMsg', false);
     try{
-      const res = await req('/api/auth/login', {
+      const res = await req('auth-login', {
         method:'POST',
         body: JSON.stringify({ email: $('email').value, password: $('password').value })
       });
       localStorage.setItem('token', res.token);
       await loadMe();
-      document.body.classList.remove('auth'); // sai do modo login (card menor)
+      document.body.classList.remove('auth');
       show('loginBox', false);
       show('signupBox', false);
       show('meBox', true);
@@ -265,15 +284,15 @@ if (togglePwd) {
 
   $('btnLogout').onclick = ()=>{
     localStorage.removeItem('token');
-    document.body.classList.add('auth'); // volta pro modo login (card menor)
+    document.body.classList.add('auth');
     location.reload();
   };
 
   async function loadMe(){
     try{
-      const me = await req('/api/auth/me');
+      const me = await req('auth-me');
       $('meEmail').textContent = 'Logado como ' + (me.email || 'usuário');
-    }catch(e){ /* ignorar para mock */ }
+    }catch(e){ /* opcional: tratar */ }
   }
 
   // upload + criar
@@ -285,7 +304,7 @@ if (togglePwd) {
     try{
       const form = new FormData();
       form.append('file', file);
-      uploadedMeta = await req('/api/upload/lista', { method:'POST', body: form });
+      uploadedMeta = await req('upload-lista', { method:'POST', body: form });
 
       const payload = {
         nome: $('nome').value.trim(),
@@ -293,7 +312,7 @@ if (togglePwd) {
         mensagem: $('mensagem').value.trim(),
         fileId: uploadedMeta.fileId
       };
-      const camp = await req('/api/campaigns', { method:'POST', body: JSON.stringify(payload) });
+      const camp = await req('campaign-create', { method:'POST', body: JSON.stringify(payload) });
       createdCampaignId = camp.id;
 
       $('resume').innerHTML = `
@@ -311,7 +330,7 @@ if (togglePwd) {
   $('btnStart').onclick = async ()=>{
     show('startMsg', false);
     try{
-      await req(`/api/campaigns/${createdCampaignId}/start`, { method:'POST' });
+      await req('campaign-start', { method:'POST', body: JSON.stringify({ id: createdCampaignId }) });
       $('startMsg').textContent = 'Disparo iniciado! Você pode acompanhar no n8n/Meetime.';
       show('startMsg', true);
     }catch(e){ $('startMsg').textContent = 'Erro: ' + e.message; show('startMsg', true); }
