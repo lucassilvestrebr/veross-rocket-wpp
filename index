@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>WhatsApp Campaign Launcher</title>
+  <style>
+    :root{
+      --navy:#080A30;
+      --gold:#ae8a56;
+      --sand:#ecd7b4;
+      --gray:#cdcdd0;
+      --paper:#fcfcfc;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      background:var(--paper);
+      margin:0; padding:24px;
+      color:#111827;
+    }
+    .card{
+      max-width:860px; margin:0 auto; background:#fff;
+      border:1px solid var(--gray); border-radius:16px;
+      box-shadow:0 6px 24px rgba(8,10,48,.08); padding:24px;
+    }
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+    .logo-wrap{display:flex;align-items:center;gap:12px}
+    .logo{height:40px; width:auto; display:block}
+    .muted{color:#6b7280;font-size:14px;margin:0 0 16px}
+    label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px;color:#1f2937}
+    input,textarea,button{font:inherit}
+    input[type="text"],input[type="password"],input[type="email"],textarea{
+      width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:12px;background:var(--paper)
+    }
+    textarea{min-height:120px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
+    .btn{padding:10px 16px;border:0;border-radius:12px;cursor:pointer;font-weight:700;transition:.18s transform ease}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--navy);color:#fff}
+    .btn-primary:hover{background:#0a0e46}
+    .btn-ghost{background:#f3f4f6;color:#374151}
+    .btn-gold{background:var(--gold);color:#fff}
+    .error{color:#b91c1c;font-size:13px;margin-top:8px}
+    .ok{color:#065f46;font-size:13px;margin-top:8px}
+    .divider{height:1px;background:var(--gray);margin:24px 0}
+    .pill{display:inline-block;background:var(--sand);color:var(--navy);padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--gold)}
+    .hide{display:none}
+    .file-hint{font-size:12px;color:#6b7280;margin-top:6px}
+    footer{max-width:860px;margin:16px auto 0;text-align:center;color:#6b7280;font-size:12px}
+    .link{color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--gold)}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <!-- TROQUE o src abaixo pelo caminho do seu logo -->
+      <div class="logo-wrap">
+        <img class="logo" src="logo.png" alt="Logo da ferramenta"/>
+      </div>
+      <div class="actions" style="margin-top:0">
+        <!-- espaço para um atalho se quiser (ex.: Docs, Suporte) -->
+      </div>
+    </header>
+    <p class="muted">Conectar · Engajar · Converter · Encantar</p>
+
+    <!-- LOGIN -->
+    <section id="loginBox">
+      <h3 style="margin:0 0 8px;color:var(--navy)">Acesse sua conta</h3>
+      <div class="row">
+        <div>
+          <label>E-mail</label>
+          <input id="email" type="email" placeholder="voce@empresa.com"/>
+        </div>
+        <div>
+          <label>Senha</label>
+          <input id="password" type="password" placeholder="••••••••"/>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
+        <button class="btn btn-primary" id="btnLogin">Entrar</button>
+      </div>
+      <div id="loginMsg" class="error hide"></div>
+    </section>
+
+    <!-- SIGNUP -->
+    <section id="signupBox" class="hide" style="margin-top:12px">
+      <h3 style="margin:0 0 8px;color:var(--navy)">Criar conta</h3>
+      <div class="row">
+        <div>
+          <label>E-mail</label>
+          <input id="signupEmail" type="email" placeholder="voce@empresa.com"/>
+        </div>
+        <div>
+          <label>Senha</label>
+          <input id="signupPassword" type="password" placeholder="Crie uma senha segura"/>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnCancelSignup">Cancelar</button>
+        <button class="btn btn-primary" id="btnSignup">Criar conta</button>
+      </div>
+      <div id="signupMsg" class="error hide"></div>
+      <div id="signupOk" class="ok hide"></div>
+      <div class="divider"></div>
+    </section>
+
+    <section id="meBox" class="hide">
+      <span class="pill" id="meEmail"></span>
+      <div class="actions" style="margin-top:8px">
+        <button class="btn btn-ghost" id="btnLogout">Sair</button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- FORM -->
+    <section id="campaignBox" class="hide">
+      <h3 style="margin:0 0 8px;color:var(--navy)">Nova campanha</h3>
+      <div class="row">
+        <div>
+          <label>Nome da campanha</label>
+          <input id="nome" type="text" placeholder="Black Friday 2025"/>
+        </div>
+        <div>
+          <label>Objetivo da campanha</label>
+          <input id="objetivo" type="text" placeholder="Agendar reuniões / Reengajar base"/>
+        </div>
+      </div>
+
+      <label>Mensagem da campanha</label>
+      <textarea id="mensagem" placeholder="Olá, {{nome}}! Aqui é da Veross..."></textarea>
+      <div class="muted">Placeholders: <code>{{nome}}</code>, <code>{{telefone}}</code> (E.164 sem +)</div>
+
+      <label>Subir lista (CSV ou Excel)</label>
+      <input id="file" type="file" accept=".csv,.xlsx,.xls"/>
+      <div class="file-hint">Baixe o layout: <a class="link" href="#" id="downloadLayout">nome,telefone</a></div>
+
+      <div class="actions">
+        <button class="btn" style="background:var(--sand);border:1px solid var(--gold)" id="btnCreate">Criar campanha</button>
+      </div>
+      <div id="formMsg" class="error hide"></div>
+
+      <div id="resumeBox" class="hide">
+        <div class="divider"></div>
+        <h3 style="margin:0 0 8px;color:var(--navy)">Resumo</h3>
+        <div id="resume"></div>
+        <div class="actions">
+          <button class="btn btn-primary" id="btnStart">Iniciar campanha</button>
+        </div>
+        <div id="startMsg" class="ok hide"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Veross 🚀 B2Bzando | Utilize com responsabilidade.
+  </footer>
+
+<script>
+  // ======== CONFIG =========
+  const API_BASE = "https://api.seudominio.com"; // troque pelo seu gateway ou HOST do n8n
+
+  // helpers
+  const $ = (id)=>document.getElementById(id);
+  const show = (id, on=true)=> $(id).classList.toggle('hide', !on);
+  const bearer = ()=> localStorage.getItem('token') || '';
+  const req = (path, init={})=>{
+    const headers = init.body instanceof FormData ? {} : {'Content-Type':'application/json'};
+    if (bearer()) headers['Authorization'] = 'Bearer ' + bearer();
+    return fetch(API_BASE + path, {...init, headers: {...headers, ...(init.headers||{})}})
+      .then(async r=> r.ok ? r.json() : Promise.reject(new Error(await r.text() || r.statusText)));
+  };
+
+  // CSV layout download
+  $('downloadLayout').addEventListener('click', (e)=>{
+    e.preventDefault();
+    const rows = ["nome,telefone","Maria da Silva,5511999999999","João Souza,5512988887777"].join("\n");
+    const blob = new Blob([rows], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='layout_lista_contatos.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // state
+  let createdCampaignId = null;
+  let uploadedMeta = null;
+
+  // toggle signup
+  $('btnShowSignup').onclick = ()=>{ show('signupBox', true); };
+  $('btnCancelSignup').onclick = ()=>{ show('signupBox', false); };
+
+  // signup
+  $('btnSignup').onclick = async ()=>{
+    show('signupMsg', false); show('signupOk', false);
+    try{
+      const email = $('signupEmail').value.trim();
+      const password = $('signupPassword').value.trim();
+      if(!email || !password){ $('signupMsg').textContent = 'Preencha e-mail e senha.'; show('signupMsg', true); return; }
+      await req('/api/auth/register', { method:'POST', body: JSON.stringify({ email, password }) });
+      $('signupOk').textContent = 'Conta criada! Agora faça login.';
+      show('signupOk', true);
+    }catch(e){
+      $('signupMsg').textContent = e.message;
+      show('signupMsg', true);
+    }
+  };
+
+  // login
+  $('btnLogin').onclick = async ()=>{
+    show('loginMsg', false);
+    try{
+      const res = await req('/api/auth/login', {
+        method:'POST',
+        body: JSON.stringify({ email: $('email').value, password: $('password').value })
+      });
+      localStorage.setItem('token', res.token);
+      await loadMe();
+      show('loginBox', false);
+      show('signupBox', false);
+      show('meBox', true);
+      show('campaignBox', true);
+    }catch(e){ $('loginMsg').textContent = e.message; show('loginMsg', true); }
+  };
+
+  $('btnLogout').onclick = ()=>{
+    localStorage.removeItem('token');
+    location.reload();
+  };
+
+  async function loadMe(){
+    try{
+      const me = await req('/api/auth/me');
+      $('meEmail').textContent = 'Logado como ' + (me.email || 'usuário');
+    }catch(e){ /* ignorar para mock */ }
+  }
+
+  // upload + criar
+  $('btnCreate').onclick = async ()=>{
+    show('formMsg', false);
+    const file = $('file').files[0];
+    if(!file){ $('formMsg').textContent = 'Selecione um arquivo CSV/Excel.'; show('formMsg', true); return; }
+
+    try{
+      // 1) upload
+      const form = new FormData();
+      form.append('file', file);
+      uploadedMeta = await req('/api/upload/lista', { method:'POST', body: form });
+
+      // 2) criar campanha
+      const payload = {
+        nome: $('nome').value.trim(),
+        objetivo: $('objetivo').value.trim(),
+        mensagem: $('mensagem').value.trim(),
+        fileId: uploadedMeta.fileId
+      };
+      const camp = await req('/api/campaigns', { method:'POST', body: JSON.stringify(payload) });
+      createdCampaignId = camp.id;
+
+      // resumo
+      $('resume').innerHTML = `
+        <p><b>Campanha:</b> ${payload.nome}</p>
+        <p><b>Objetivo:</b> ${payload.objetivo}</p>
+        <p><b>Mensagem:</b> ${payload.mensagem.replace(/</g,'&lt;')}</p>
+        <p><b>Contatos:</b> ${uploadedMeta.rows || 0}</p>
+        <p><b>ID:</b> ${createdCampaignId}</p>
+      `;
+      show('resumeBox', true);
+    }catch(e){ $('formMsg').textContent = e.message; show('formMsg', true); }
+  };
+
+  // iniciar
+  $('btnStart').onclick = async ()=>{
+    show('startMsg', false);
+    try{
+      const res = await req(`/api/campaigns/${createdCampaignId}/start`, { method:'POST' });
+      $('startMsg').textContent = 'Disparo iniciado! Você pode acompanhar no n8n/Meetime.';
+      show('startMsg', true);
+    }catch(e){ $('startMsg').textContent = 'Erro: ' + e.message; show('startMsg', true); }
+  };
+
+  // se já tem token, pula pro app
+  if (bearer()){
+    loadMe().then(()=>{
+      show('loginBox', false);
+      show('signupBox', false);
+      show('meBox', true);
+      show('campaignBox', true);
+    });
+  }
+</script>
+</body>
+</html>
