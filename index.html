@@ -96,9 +96,11 @@
             <input id="email" type="email" placeholder="voce@empresa.com"/>
           </div>
           <div>
-            <label>Senha</label>
-            <input id="password" type="password" placeholder="••••••••"/>
-          </div>
+      <label>Senha</label>
+             <div style="display:flex;gap:8px;align-items:center">
+            <input id="password" type="password" placeholder="••••••••" style="flex:1"/>
+            <button class="btn btn-ghost" id="togglePwd" type="button">Mostrar</button>
+        </div>
         </div>
         <div class="actions">
           <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
@@ -195,7 +197,17 @@
     const url = API_BASE ? (API_BASE + path) : path; // se vazio, chama /api/... direto
     return fetch(url.startsWith('/api')? url : (API_BASE + path), {...init, headers: {...headers, ...(init.headers||{})}})
       .then(async r=> r.ok ? r.json() : Promise.reject(new Error(await r.text() || r.statusText)));
-  };
+  }
+    // toggle mostrar/ocultar senha
+const togglePwd = document.getElementById('togglePwd');
+if (togglePwd) {
+  const pwdInput = $('password');
+  togglePwd.onclick = () => {
+    const mostrar = pwdInput.type === 'password';
+    pwdInput.type = mostrar ? 'text' : 'password';
+    togglePwd.textContent = mostrar ? 'Ocultar' : 'Mostrar';
+  }
+    ;
 
   // CSV layout download
   $('downloadLayout').addEventListener('click', (e)=>{
