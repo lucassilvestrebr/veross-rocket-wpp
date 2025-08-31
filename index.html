@@ -245,7 +245,7 @@ await disableDuring(async ()=>{
   });
   const out = await res.json();
   if (!out.ok) throw new Error(`n8n ${out.status}: ${String(out.body).slice(0,200)}`);
-  alert("Campanha iniciada! Acompanhe no n8n.");
+  alert("Campanha iniciada! Acompanhe no WhatsApp. 🚀");
 }, $("#btnIniciar"));
 
 }
