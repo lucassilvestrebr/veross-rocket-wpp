@@ -232,19 +232,20 @@
     token: session.access_token           // ⬅️ token vai no corpo
   };
 
-  await disableDuring(async ()=>{
-    const res = await fetch(N8N_OUTREACH, {
-      method: "POST",
-      // ⬇️ text/plain evita preflight
-      headers: { "Content-Type": "text/plain;charset=UTF-8" },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok){
-      const txt = await res.text();
-      throw new Error(txt || ("HTTP " + res.status));
-    }
-    alert("Campanha iniciada! Acompanhe no seu WhatsApp! 🚀");
-  }, $("#btnIniciar"));
+await disableDuring(async () => {
+  const res = await fetch(N8N_OUTREACH, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload) // payload já inclui token, nome, objetivo, message_template
+  });
+
+  const out = await res.json();     // <- lê o JSON do proxy
+  if (!out.ok) {
+    throw new Error(`n8n ${out.status}: ${String(out.body).slice(0,200)}`);
+  }
+  alert("Campanha iniciada! Acompanhe no n8n.");
+}, $("#btnIniciar"));
+
 }
 
 
