@@ -232,22 +232,23 @@
     token: session.access_token           // ⬅️ token vai no corpo
   };
 
-await disableDuring(async () => {
+await disableDuring(async ()=>{
   const res = await fetch(N8N_OUTREACH, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload) // payload já inclui token, nome, objetivo, message_template
+    body: JSON.stringify({
+      nome: ($("#nomeCampanha").value || "").trim() || "Sem nome",
+      objetivo: ($("#objetivoCampanha").value || "").trim(),
+      message_template: $("#mensagemCampanha").value || "Oi, [[nome]]!",
+      token: (await supabase.auth.getSession()).data.session?.access_token || ""
+    })
   });
-
-  const out = await res.json();     // <- lê o JSON do proxy
-  if (!out.ok) {
-    throw new Error(`n8n ${out.status}: ${String(out.body).slice(0,200)}`);
-  }
+  const out = await res.json();
+  if (!out.ok) throw new Error(`n8n ${out.status}: ${String(out.body).slice(0,200)}`);
   alert("Campanha iniciada! Acompanhe no n8n.");
 }, $("#btnIniciar"));
 
 }
-
 
     async function disableDuring(fn, btn){
       const old = btn.textContent;
