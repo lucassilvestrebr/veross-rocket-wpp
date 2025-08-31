@@ -349,4 +349,106 @@
   }
 </script>
 </body>
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rocketflow</title>
+    <!-- seus estilos aqui -->
+  </head>
+
+  <body>
+    <!-- CARD DE LOGIN -->
+    <div id="card-login">
+      <input id="email" type="email" placeholder="voce@empresa.com" />
+      <input id="senha" type="password" placeholder="Senha" />
+      <button id="btnCriarConta">Criar conta</button>
+      <button id="btnEntrar">Entrar</button>
+    </div>
+
+    <!-- CARD DO APP (pós-login) -->
+    <div id="card-app" style="display:none">
+      Logado como: <strong id="user-email"></strong><br />
+      <input id="nomeCampanha" placeholder="Nome da campanha" />
+      <input id="objetivoCampanha" placeholder="Objetivo" />
+      <textarea id="mensagemCampanha">Oi, [[nome]]!</textarea>
+      <button id="btnIniciar">Iniciar campanha</button>
+      <button id="btnSair">Sair</button>
+    </div>
+
+    <!-- 1) Biblioteca Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 2) Seu script de configuração/handlers -->
+    <script>
+      // troque pelos seus valores
+      const SUPABASE_URL  = "https://supabase.veross.com.br";
+      const SUPABASE_ANON = "SUA_ANON_PUBLIC_KEY";
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+
+      const N8N_OUTREACH = "https://webhook.veross.com.br/webhook/rocketflow-outreach";
+
+      async function refreshUI() {
+        const { data: { session } } = await supabase.auth.getSession();
+        const logged = !!session;
+        document.querySelector("#card-login").style.display = logged ? "none" : "block";
+        document.querySelector("#card-app").style.display   = logged ? "block" : "none";
+        if (logged) document.querySelector("#user-email").textContent = session.user.email;
+      }
+
+      async function criarConta() {
+        const email = document.querySelector("#email").value.trim();
+        const senha = document.querySelector("#senha").value;
+        const { error } = await supabase.auth.signUp({ email, password: senha });
+        if (error) return alert("Erro ao criar conta: " + error.message);
+        alert("Conta criada! (ou já confirmada se marcou Email confirmed no Studio)");
+      }
+
+      async function entrar() {
+        const email = document.querySelector("#email").value.trim();
+        const senha = document.querySelector("#senha").value;
+        const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+        if (error) return alert("Login falhou: " + error.message);
+        await refreshUI();
+      }
+
+      async function sair() { await supabase.auth.signOut(); await refreshUI(); }
+
+      async function iniciarCampanha() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return alert("Faça login primeiro.");
+
+        const payload = {
+          nome: document.querySelector("#nomeCampanha").value.trim(),
+          objetivo: document.querySelector("#objetivoCampanha").value.trim(),
+          message_template: document.querySelector("#mensagemCampanha").value
+        };
+
+        const res = await fetch(N8N_OUTREACH, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + session.access_token
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) return alert("Erro ao iniciar: " + (await res.text()));
+        alert("Campanha iniciada!");
+      }
+
+      // liga os botões depois que o DOM existe
+      window.addEventListener("DOMContentLoaded", () => {
+        document.querySelector("#btnCriarConta").onclick = criarConta;
+        document.querySelector("#btnEntrar").onclick     = entrar;
+        document.querySelector("#btnSair").onclick       = sair;
+        document.querySelector("#btnIniciar").onclick    = iniciarCampanha;
+        refreshUI();
+      });
+    </script>
+  </body>
+</html>
 </html>
