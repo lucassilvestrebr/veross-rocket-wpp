@@ -233,7 +233,7 @@
   };
 
 await disableDuring(async ()=>{
-  const res = await fetch(N8N_OUTREACH, {
+  const res = await fetch("/api/outreach", { // use "?test=1" se quiser capturar no 'Listen for test event'
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -245,7 +245,7 @@ await disableDuring(async ()=>{
   });
   const out = await res.json();
   if (!out.ok) throw new Error(`n8n ${out.status}: ${String(out.body).slice(0,200)}`);
-  alert("Campanha iniciada! Acompanhe no WhatsApp. 🚀");
+  alert("Campanha iniciada! Acompanhe no n8n/WhatsApp.");
 }, $("#btnIniciar"));
 
 }
