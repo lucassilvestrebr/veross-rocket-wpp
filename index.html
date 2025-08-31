@@ -221,32 +221,32 @@
       await refreshUI();
     }
 
-    async function iniciarCampanha(){
+   async function iniciarCampanha(){
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return alert("Faça login primeiro.");
 
-      const payload = {
-        nome: ($("#nomeCampanha").value || "").trim() || "Sem nome",
-        objetivo: ($("#objetivoCampanha").value || "").trim(),
-        message_template: $("#mensagemCampanha").value || "Oi, [[nome]]!"
-      };
+  const payload = {
+    nome: ($("#nomeCampanha").value || "").trim() || "Sem nome",
+    objetivo: ($("#objetivoCampanha").value || "").trim(),
+    message_template: $("#mensagemCampanha").value || "Oi, [[nome]]!",
+    token: session.access_token           // ⬅️ token vai no corpo
+  };
 
-      await disableDuring(async ()=>{
-        const res = await fetch(N8N_OUTREACH, {
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json",
-            "Authorization":"Bearer " + session.access_token
-          },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok){
-          const txt = await res.text();
-          throw new Error(txt || ("HTTP " + res.status));
-        }
-        alert("Campanha iniciada! Acompanhe no n8n.");
-      }, $("#btnIniciar"));
+  await disableDuring(async ()=>{
+    const res = await fetch(N8N_OUTREACH, {
+      method: "POST",
+      // ⬇️ text/plain evita preflight
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok){
+      const txt = await res.text();
+      throw new Error(txt || ("HTTP " + res.status));
     }
+    alert("Campanha iniciada! Acompanhe no n8n.");
+  }, $("#btnIniciar"));
+}
+
 
     async function disableDuring(fn, btn){
       const old = btn.textContent;
