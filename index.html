@@ -1,458 +1,266 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Rocketflow • WhatsApp Campaign Launcher</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rocketflow</title>
+  <meta name="color-scheme" content="light only" />
   <style>
     :root{
-      --navy:#080A30;
-      --gold:#ae8a56;
-      --sand:#ecd7b4;
-      --gray:#cdcdd0;
-      --paper:#fcfcfc;
+      --navy: #080A30;
+      --gold: #ae8a56;
+      --sand: #ecd7b4;
+      --gray: #cdcdd0;
+      --paper: #fcfcfc;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
-      background:var(--paper);
-      color:#111827;
       margin:0;
-      min-height:100vh;
-      display:flex;flex-direction:column;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, #cbd0ff33 0%, transparent 60%),
+        radial-gradient(1200px 600px at 120% 10%, #f6e6cc55 0%, transparent 60%),
+        var(--paper);
+      color: #1a1a1a;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:24px;
     }
-
-    /* centro absoluto do conteúdo */
-    .main{ flex:1; display:grid; place-items:center; padding:24px; }
-
-    /* cartão padrão (após login) */
-    .card{
+    header{
       width:100%;
-      max-width:860px;
+      max-width:980px;
+      padding:24px 16px 0;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    header img.logo{
+      width:48px;height:48px;border-radius:12px;object-fit:contain;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+    header .title{
+      display:flex;flex-direction:column;gap:4px
+    }
+    header .title h1{
+      margin:0;font-weight:800;letter-spacing:.2px;color:var(--navy);font-size:22px;
+    }
+    header .title small{color:#475;text-wrap:balance}
+
+    .card{
+      width:min(920px, 96vw);
+      background:white;
+      border:1px solid #00000010;
+      border-radius:18px;
+      box-shadow:
+        0 10px 30px -10px rgba(8,10,48,.20),
+        0 4px 12px -6px rgba(8,10,48,.15),
+        inset 0 1px 0 rgba(255,255,255,.6);
+      padding:28px;
+    }
+    .card.narrow{width:min(720px, 96vw)}
+    .divider{height:1px;background:linear-gradient(90deg, transparent, #00000010, transparent); margin:22px 0}
+    h2{margin:14px 0 12px;font-size:20px;color:var(--navy)}
+    label{display:block;margin:14px 0 8px;font-weight:600;color:#222}
+    input[type="email"],input[type="password"],input[type="text"],textarea{
+      width:100%;
+      padding:14px 14px;
+      border:1px solid #00000022;
+      border-radius:12px;
       background:#fff;
-      border:1px solid var(--gray);
-      border-radius:16px;
-      box-shadow:0 6px 24px rgba(8,10,48,.08);
-      padding:24px;
+      outline:none;
+      font-size:16px;
+      transition:.15s border, .15s box-shadow;
     }
-
-    /* modo login: cartão menor e header centralizado */
-    body.auth .card{ max-width:560px; padding:28px; }
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-    body.auth header{ justify-content:center; }
-    .logo-wrap{display:flex;align-items:center;gap:12px;flex-direction:column}
-    .logo{height:220px;width:auto;display:block;border-radius:12px}
-    body:not(.auth) .logo{height:40px} /* quando logado, logo fica pequena no topo/esquerda */
-
-    .muted{color:#6b7280;font-size:14px;margin:4px 0 16px}
-    body.auth .muted{text-align:center}
-
-    h3{margin:0 0 8px;color:var(--navy)}
-    label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px;color:#1f2937}
-    input,textarea,button{font:inherit}
-    input[type="text"],input[type="password"],input[type="email"],textarea{
-      width:100%;padding:12px 14px;border:1px solid var(--gray);border-radius:12px;background:var(--paper)
+    textarea{min-height:120px;resize:vertical}
+    input:focus, textarea:focus{
+      border-color:#3b82f622;
+      box-shadow: 0 0 0 4px #3b82f611;
     }
-    textarea{min-height:120px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media (max-width:640px){ .row{grid-template-columns:1fr;} }
-
-    .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:16px}
-    .btn{padding:10px 16px;border:0;border-radius:12px;cursor:pointer;font-weight:700;transition:.18s transform ease}
-    .btn:active{transform:translateY(1px)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .btn{
+      appearance:none;border:0;cursor:pointer;
+      padding:12px 18px;border-radius:12px;font-weight:700;font-size:15px;
+      box-shadow: 0 6px 18px -10px rgba(8,10,48,.4);
+      transition:.15s transform, .15s filter, .15s opacity;
+    }
+    .btn:disabled{opacity:.55;filter:grayscale(.3);cursor:not-allowed}
     .btn-primary{background:var(--navy);color:#fff}
-    .btn-primary:hover{background:#0a0e46}
-    .btn-ghost{background:#f3f4f6;color:#374151}
     .btn-gold{background:var(--gold);color:#fff}
-    .error{color:#b91c1c;font-size:13px;margin-top:8px}
-    .ok{color:#065f46;font-size:13px;margin-top:8px}
-    .divider{height:1px;background:var(--gray);margin:24px 0}
-    .pill{display:inline-block;background:var(--sand);color:var(--navy);padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--gold)}
-    .hide{display:none}
-    .file-hint{font-size:12px;color:#6b7280;margin-top:6px}
-    footer{max-width:860px;margin:16px auto 24px;text-align:center;color:#6b7280;font-size:12px}
-    .link{color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--gold)}
+    .btn-ghost{background:#f6f7fb;color:#222;border:1px solid #00000012}
+    .muted{color:#666}
+    .right{margin-left:auto}
+    .footer{
+      margin:10px 0 32px;color:#555;font-size:14px;text-align:center
+    }
+    .hint{font-size:12px;color:#666;margin-top:6px}
+    .pwd-wrap{position:relative}
+    .pwd-toggle{
+      position:absolute;right:10px;top:50%;transform:translateY(-50%);
+      border:0;background:#f3f4f8;padding:6px 10px;border-radius:10px;cursor:pointer;
+      color:#333;font-weight:700
+    }
+    .tagline{text-align:center;color:#222;margin-top:6px}
+    .hide{display:none !important}
+    a.layout{color:var(--navy);text-decoration:none;border-bottom:1px dashed var(--navy)}
+    @media (max-width:720px){ .row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
-  <div class="main">
-    <div class="card">
-      <header>
-        <div class="logo-wrap">
-          <!-- LOGO: usei a imagem que você enviou -->
-          <img class="logo" src="https://i.postimg.cc/28y5rD7J/LOGO-VEROSS-ROCKETFLOW-1000-X1000.png" alt="Rocketflow logo"/>
-          <!-- tagline -->
-          <p class="muted">Faça prospecção todo santo dia!</p>
-        </div>
-        <div class="actions-top"></div>
-      </header>
 
-      <!-- LOGIN -->
-      <section id="loginBox">
-        <h3>Acesse sua conta</h3>
-        <div class="row">
-          <div>
-            <label>E-mail</label>
-            <input id="email" type="email" placeholder="voce@empresa.com"/>
-          </div>
-          <div>
-            <label>Senha</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input id="password" type="password" placeholder="••••••••" style="flex:1"/>
-              <button class="btn btn-ghost" id="togglePwd" type="button">Mostrar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="actions" style="justify-content:space-between;margin-top:8px">
-          <a class="link" href="#" id="forgotLink">Esqueci minha senha</a>
-          <div>
-            <button class="btn btn-gold" id="btnShowSignup">Criar conta</button>
-            <button class="btn btn-primary" id="btnLogin">Entrar</button>
-          </div>
-        </div>
-        <div id="loginMsg" class="error hide"></div>
-        <div class="divider"></div>
-      </section>
-
-      <!-- SIGNUP -->
-      <section id="signupBox" class="hide">
-        <h3>Criar conta</h3>
-        <div class="row">
-          <div>
-            <label>E-mail</label>
-            <input id="signupEmail" type="email" placeholder="voce@empresa.com"/>
-          </div>
-          <div>
-            <label>Senha</label>
-            <input id="signupPassword" type="password" placeholder="Crie uma senha segura"/>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-ghost" id="btnCancelSignup">Cancelar</button>
-          <button class="btn btn-primary" id="btnSignup">Criar conta</button>
-        </div>
-        <div id="signupMsg" class="error hide"></div>
-        <div id="signupOk" class="ok hide"></div>
-        <div class="divider"></div>
-      </section>
-
-      <section id="meBox" class="hide">
-        <span class="pill" id="meEmail"></span>
-        <div class="actions" style="margin-top:8px">
-          <button class="btn btn-ghost" id="btnLogout">Sair</button>
-        </div>
-      </section>
-
-      <div class="divider"></div>
-
-      <!-- FORM CAMPANHA -->
-      <section id="campaignBox" class="hide">
-        <h3>Nova campanha</h3>
-        <div class="row">
-          <div>
-            <label>Nome da campanha</label>
-            <input id="nome" type="text" placeholder="Black Friday 2025"/>
-          </div>
-          <div>
-            <label>Objetivo da campanha</label>
-            <input id="objetivo" type="text" placeholder="Agendar reuniões / Reengajar base"/>
-          </div>
-        </div>
-
-        <label>Mensagem da campanha</label>
-        <textarea id="mensagem" placeholder="Olá, {{nome}}! Aqui é da Veross..."></textarea>
-        <div class="muted">Placeholders: <code>{{nome}}</code>, <code>{{telefone}}</code> (E.164 sem +)</div>
-
-        <label>Subir lista (CSV ou Excel)</label>
-        <input id="file" type="file" accept=".csv,.xlsx,.xls"/>
-        <div class="file-hint">Baixe o layout: <a class="link" href="#" id="downloadLayout">nome,telefone</a></div>
-
-        <div class="actions">
-          <button class="btn" style="background:var(--sand);border:1px solid var(--gold)" id="btnCreate">Criar campanha</button>
-        </div>
-        <div id="formMsg" class="error hide"></div>
-
-        <div id="resumeBox" class="hide">
-          <div class="divider"></div>
-          <h3>Resumo</h3>
-          <div id="resume"></div>
-          <div class="actions">
-            <button class="btn btn-primary" id="btnStart">Iniciar campanha</button>
-          </div>
-          <div id="startMsg" class="ok hide"></div>
-        </div>
-      </section>
+  <!-- topo -->
+  <header>
+    <img class="logo" src="https://i.postimg.cc/28y5rD7J/LOGO-VEROSS-ROCKETFLOW-1000-X1000.png" alt="Rocketflow logo" />
+    <div class="title">
+      <h1>Rocketflow</h1>
+      <small class="muted">Faça prospecção todo santo dia!</small>
     </div>
+  </header>
+
+  <!-- LOGIN -->
+  <section id="card-login" class="card narrow">
+    <h2>Acesse sua conta</h2>
+
+    <div class="row">
+      <div>
+        <label for="email">E-mail</label>
+        <input id="email" type="email" placeholder="voce@empresa.com" autocomplete="email" />
+      </div>
+      <div class="pwd-wrap">
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <button id="btnMostrar" class="pwd-toggle" type="button">Mostrar</button>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:14px">
+      <button id="btnCriarConta" class="btn btn-gold" type="button">Criar conta</button>
+      <button id="btnEntrar" class="btn btn-primary" type="button">Entrar</button>
+      <span class="hint">Use o mesmo e-mail para criar e entrar.</span>
+      <span class="right muted" id="loginStatus"></span>
+    </div>
+
+    <div class="divider"></div>
+    <div class="hint">Dica: guarde bem sua senha 😉</div>
+  </section>
+
+  <!-- APP (aparece após login) -->
+  <section id="card-app" class="card hide">
+    <div class="row" style="align-items:center">
+      <div>
+        <h2>Campanha</h2>
+        <div class="muted">Logado como <strong id="user-email">—</strong></div>
+      </div>
+      <div class="actions right">
+        <button id="btnSair" class="btn btn-ghost" type="button">Sair</button>
+      </div>
+    </div>
+
+    <label for="nomeCampanha">Nome da campanha</label>
+    <input id="nomeCampanha" type="text" placeholder="Ex.: Abertura Setembro" />
+
+    <label for="objetivoCampanha">Objetivo da campanha</label>
+    <input id="objetivoCampanha" type="text" placeholder="Ex.: Geração de leads B2B" />
+
+    <label for="mensagemCampanha">Mensagem da campanha</label>
+    <textarea id="mensagemCampanha">Oi, [[nome]]! Aqui é da Veross 🚀 — posso te enviar uma ideia rápida?</textarea>
+    <div class="hint">Use [[nome]] para personalizar com o nome da lista.</div>
+
+    <div class="divider"></div>
+
+    <div class="actions">
+      <a class="layout" href="data:text/csv;charset=utf-8,nome,telefone%0A" download="layout_contatos.csv">Baixar layout (nome,telefone)</a>
+      <span class="muted">A lista é lida da planilha padrão no Google Sheets.</span>
+      <button id="btnIniciar" class="btn btn-primary right" type="button">Iniciar campanha</button>
+    </div>
+  </section>
+
+  <div class="footer">
+    Veross 🚀 B2Bzando | Utilize com responsabilidade.
   </div>
 
-  <footer>
-    Veross 🚀 B2Bzando | Utilize com responsabilidade.
-  </footer>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  /* ===================== CONFIG ===================== */
-  // Modo recomendado (Vercel com rewrites /api → n8n):
-  const USE_VERCEL_PROXY = true;  // true = chama /api/..., false = chama API_BASE + endpoint
-  const API_BASE = "";            // se USE_VERCEL_PROXY=false, preencha: "https://SEU_N8N/webhook"
+  <!-- App script -->
+  <script>
+    // 🔐 Credenciais públicas do seu projeto (ANON)
+    const SUPABASE_URL  = "https://zrsofdqppbvxzhiwnzzr.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc29mZHFwcGJ2eHpoaXduenpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1OTc5MjUsImV4cCI6MjA3MjE3MzkyNX0.LZNHtXsG5Thkf_6ZRG5-UfAMaIqzOHrSt5UgRsnEaTs";
 
-  const $ = (id)=>document.getElementById(id);
-  const show = (id, on=true)=> $(id).classList.toggle('hide', !on);
-  const bearer = ()=> localStorage.getItem('token') || '';
+    // Endpoints do n8n
+    const N8N_OUTREACH = "https://webhook.veross.com.br/webhook/rocketflow-outreach";
 
-  function endpoint(path){ // ex: endpoint('auth-login')
-    if (USE_VERCEL_PROXY) return `/api/${path}`;
-    const base = API_BASE.replace(/\/$/,'');
-    return `${base}/${path}`;
-  }
+    // Instância Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    });
 
-  const req = (path, init={})=>{
-    const headers = init.body instanceof FormData ? {} : {'Content-Type':'application/json'};
-    if (bearer()) headers['Authorization'] = 'Bearer ' + bearer();
-    const url = endpoint(path);
-    return fetch(url, {...init, headers: {...headers, ...(init.headers||{})}})
-      .then(async r=> r.ok ? r.json() : Promise.reject(new Error((await r.text()) || r.statusText)));
-  };
+    // Helpers UI
+    const $ = (sel) => document.querySelector(sel);
+    const show = (el) => el.classList.remove('hide');
+    const hide = (el) => el.classList.add('hide');
 
-  /* ===================== UI Helpers ===================== */
-  // Toggle mostrar/ocultar senha
-  const togglePwd = document.getElementById('togglePwd');
-  if (togglePwd) {
-    const pwdInput = $('password');
-    togglePwd.onclick = () => {
-      const mostrar = pwdInput.type === 'password';
-      pwdInput.type = mostrar ? 'text' : 'password';
-      togglePwd.textContent = mostrar ? 'Ocultar' : 'Mostrar';
-    };
-  }
-
-  // Esqueci minha senha (placeholder)
-  const forgot = document.getElementById('forgotLink');
-  if (forgot) forgot.onclick = (e)=>{ e.preventDefault(); alert('Em breve: fluxo de redefinição de senha.'); };
-
-  // CSV layout download
-  $('downloadLayout').addEventListener('click', (e)=>{
-    e.preventDefault();
-    const rows = ["nome,telefone","Maria da Silva,5511999999999","João Souza,5512988887777"].join("\n");
-    const blob = new Blob([rows], {type:"text/csv;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download='layout_lista_contatos.csv'; a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  /* ===================== APP STATE ===================== */
-  let createdCampaignId = null;
-  let uploadedMeta = null;
-
-  // mostrar/ocultar signup
-  $('btnShowSignup').onclick = ()=>{ show('signupBox', true); };
-  $('btnCancelSignup').onclick = ()=>{ show('signupBox', false); };
-
-  // signup
-  $('btnSignup').onclick = async ()=>{
-    show('signupMsg', false); show('signupOk', false);
-    try{
-      const email = $('signupEmail').value.trim();
-      const password = $('signupPassword').value.trim();
-      if(!email || !password){ $('signupMsg').textContent = 'Preencha e-mail e senha.'; show('signupMsg', true); return; }
-      await req('auth-register', { method:'POST', body: JSON.stringify({ email, password }) });
-      $('signupOk').textContent = 'Conta criada! Agora faça login.';
-      show('signupOk', true);
-    }catch(e){
-      $('signupMsg').textContent = e.message;
-      show('signupMsg', true);
+    async function refreshUI(){
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        hide($("#card-login"));
+        show($("#card-app"));
+        $("#user-email").textContent = session.user?.email || "-";
+      } else {
+        show($("#card-login"));
+        hide($("#card-app"));
+        $("#user-email").textContent = "-";
+      }
     }
-  };
 
-  // login
-  $('btnLogin').onclick = async ()=>{
-    show('loginMsg', false);
-    try{
-      const res = await req('auth-login', {
-        method:'POST',
-        body: JSON.stringify({ email: $('email').value, password: $('password').value })
-      });
-      localStorage.setItem('token', res.token);
-      await loadMe();
-      document.body.classList.remove('auth');
-      show('loginBox', false);
-      show('signupBox', false);
-      show('meBox', true);
-      show('campaignBox', true);
-    }catch(e){ $('loginMsg').textContent = e.message; show('loginMsg', true); }
-  };
+    // Ações de Auth
+    async function criarConta(){
+      disableDuring(async () => {
+        const email = $("#email").value.trim();
+        const password = $("#senha").value;
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) return alert("Erro ao criar conta: " + error.message);
+        alert("Conta criada! Caso exija confirmação, verifique seu e-mail.");
+      }, $("#btnCriarConta"));
+    }
 
-  $('btnLogout').onclick = ()=>{
-    localStorage.removeItem('token');
-    document.body.classList.add('auth');
-    location.reload();
-  };
+    async function entrar(){
+      disableDuring(async () => {
+        const email = $("#email").value.trim();
+        const password = $("#senha").value;
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return alert("Login falhou: " + error.message);
+        $("#loginStatus").textContent = "";
+        await refreshUI();
+      }, $("#btnEntrar"));
+    }
 
-  async function loadMe(){
-    try{
-      const me = await req('auth-me');
-      $('meEmail').textContent = 'Logado como ' + (me.email || 'usuário');
-    }catch(e){ /* opcional: tratar */ }
-  }
+    async function sair(){
+      await supabase.auth.signOut();
+      await refreshUI();
+    }
 
-  // upload + criar
-  $('btnCreate').onclick = async ()=>{
-    show('formMsg', false);
-    const file = $('file').files[0];
-    if(!file){ $('formMsg').textContent = 'Selecione um arquivo CSV/Excel.'; show('formMsg', true); return; }
-
-    try{
-      const form = new FormData();
-      form.append('file', file);
-      uploadedMeta = await req('upload-lista', { method:'POST', body: form });
+    // Disparo
+    async function iniciarCampanha(){
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return alert("Faça login primeiro.");
 
       const payload = {
-        nome: $('nome').value.trim(),
-        objetivo: $('objetivo').value.trim(),
-        mensagem: $('mensagem').value.trim(),
-        fileId: uploadedMeta.fileId
+        nome: ($("#nomeCampanha").value || "").trim() || "Sem nome",
+        objetivo: ($("#objetivoCampanha").value || "").trim(),
+        message_template: $("#mensagemCampanha").value || "Oi, [[nome]]!"
       };
-      const camp = await req('campaign-create', { method:'POST', body: JSON.stringify(payload) });
-      createdCampaignId = camp.id;
 
-      $('resume').innerHTML = `
-        <p><b>Campanha:</b> ${payload.nome}</p>
-        <p><b>Objetivo:</b> ${payload.objetivo}</p>
-        <p><b>Mensagem:</b> ${payload.mensagem.replace(/</g,'&lt;')}</p>
-        <p><b>Contatos:</b> ${uploadedMeta.rows || 0}</p>
-        <p><b>ID:</b> ${createdCampaignId}</p>
-      `;
-      show('resumeBox', true);
-    }catch(e){ $('formMsg').textContent = e.message; show('formMsg', true); }
-  };
-
-  // iniciar
-  $('btnStart').onclick = async ()=>{
-    show('startMsg', false);
-    try{
-      await req('campaign-start', { method:'POST', body: JSON.stringify({ id: createdCampaignId }) });
-      $('startMsg').textContent = 'Disparo iniciado! Você pode acompanhar no n8n/Meetime.';
-      show('startMsg', true);
-    }catch(e){ $('startMsg').textContent = 'Erro: ' + e.message; show('startMsg', true); }
-  };
-
-  // inicia em modo login (card menor). Se já tem token, entra direto
-  document.body.classList.add('auth');
-  if (bearer()){
-    loadMe().then(()=>{
-      document.body.classList.remove('auth');
-      show('loginBox', false);
-      show('signupBox', false);
-      show('meBox', true);
-      show('campaignBox', true);
-    });
-  }
-</script>
-</body>
-<!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rocketflow</title>
-    <!-- seus estilos aqui -->
-  </head>
-
-  <body>
-    <!-- CARD DE LOGIN -->
-    <div id="card-login">
-      <input id="email" type="email" placeholder="voce@empresa.com" />
-      <input id="senha" type="password" placeholder="Senha" />
-      <button id="btnCriarConta">Criar conta</button>
-      <button id="btnEntrar">Entrar</button>
-    </div>
-
-    <!-- CARD DO APP (pós-login) -->
-    <div id="card-app" style="display:none">
-      Logado como: <strong id="user-email"></strong><br />
-      <input id="nomeCampanha" placeholder="Nome da campanha" />
-      <input id="objetivoCampanha" placeholder="Objetivo" />
-      <textarea id="mensagemCampanha">Oi, [[nome]]!</textarea>
-      <button id="btnIniciar">Iniciar campanha</button>
-      <button id="btnSair">Sair</button>
-    </div>
-
-    <!-- 1) Biblioteca Supabase -->
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-  // 🔐 suas credenciais públicas (ANON)
-  const SUPABASE_URL  = "https://zrsofdqppbvxzhiwnzzr.supabase.co";
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc29mZHFwcGJ2eHpoaXduenpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1OTc5MjUsImV4cCI6MjA3MjE3MzkyNX0.LZNHtXsG5Thkf_6ZRG5-UfAMaIqzOHrSt5UgRsnEaTs";
-
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-    auth: { persistSession: true, autoRefreshToken: true }
-  });
-
-  // seu webhook no n8n
-  const N8N_OUTREACH = "https://webhook.veross.com.br/webhook/rocketflow-outreach";
-
-  async function refreshUI() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const logged = !!session;
-    document.querySelector("#card-login").style.display = logged ? "none" : "block";
-    document.querySelector("#card-app").style.display   = logged ? "block" : "none";
-    if (logged) document.querySelector("#user-email").textContent = session.user.email;
-  }
-
-  async function criarConta() {
-    const email = document.querySelector("#email").value.trim();
-    const senha = document.querySelector("#senha").value;
-    const { error } = await supabase.auth.signUp({ email, password: senha });
-    if (error) return alert("Erro ao criar conta: " + error.message);
-    alert("Conta criada! (se precisar confirmação, verifique o e-mail)");
-  }
-
-  async function entrar() {
-    const email = document.querySelector("#email").value.trim();
-    const senha = document.querySelector("#senha").value;
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    if (error) return alert("Login falhou: " + error.message);
-    await refreshUI();
-  }
-
-  async function sair() {
-    await supabase.auth.signOut();
-    await refreshUI();
-  }
-
-  async function iniciarCampanha() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return alert("Faça login primeiro.");
-
-    const payload = {
-      nome: document.querySelector("#nomeCampanha").value.trim(),
-      objetivo: document.querySelector("#objetivoCampanha").value.trim(),
-      message_template: document.querySelector("#mensagemCampanha").value
-    };
-
-    const res = await fetch(N8N_OUTREACH, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + session.access_token
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) return alert("Erro ao iniciar: " + (await res.text()));
-    alert("Campanha iniciada!");
-  }
-
-  // liga os botões (garanta type="button" nos <button>)
-  document.querySelector("#btnCriarConta").onclick = criarConta;
-  document.querySelector("#btnEntrar").onclick     = entrar;
-  document.querySelector("#btnSair").onclick       = sair;
-  document.querySelector("#btnIniciar").onclick    = iniciarCampanha;
-
-  refreshUI();
-  </script>
-  </body>
-</html>
-</html>
+      await disableDuring(async () => {
+        const res = await fetch(N8N_OUTREACH, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + session.access_token
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok
