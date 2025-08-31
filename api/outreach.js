@@ -1,21 +1,27 @@
-// api/outreach.js
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+// api/outreach.js  (Serverless Function na Vercel)
+export default async function handler(request, response) {
+  if (request.method !== 'POST') {
+    return response.status(405).send('Method Not Allowed');
   }
-  try {
-    // ⬇️ Cole AQUI a Production URL do nó Webhook (copie do n8n)
-    const N8N_URL = 'https://webhook.veross.com.br/webhook/rocketflow-outreach';
 
-    const upstream = await fetch(N8N_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body || {})
-    });
+  // 1) Body do front (Next Pages já parseia JSON)
+  const payload = request.body ?? {};
 
-    const text = await upstream.text();
-    res.status(upstream.status).json({ ok: upstream.ok, status: upstream.status, body: text });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
+  // 2) URL *de produção* do seu Webhook do n8n
+  const n8nUrl = 'https://webhook.veross.com.br/webhook/rocketflow-outreach';
+
+  // 3) Repasse para o n8n
+  const r = await fetch(n8nUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await r.text();
+
+  // 4) Devolva a resposta para o front (útil para debug)
+  response
+    .status(r.status)
+    .setHeader('content-type', r.headers.get('content-type') ?? 'text/plain')
+    .send(text);
 }
